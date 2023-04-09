@@ -2,6 +2,7 @@ package simpledb;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 /** Helper methods used for testing and implementing random features. */
@@ -11,8 +12,7 @@ public class Utility {
      */
     public static Type[] getTypes(int len) {
         Type[] types = new Type[len];
-        for (int i = 0; i < len; ++i)
-            types[i] = Type.INT_TYPE;
+        Arrays.fill(types, Type.INT_TYPE);
         return types;
     }
 
@@ -146,12 +146,12 @@ public class Utility {
     }
 
     public static String listToString(ArrayList<Integer> list) {
-        String out = "";
+        StringBuilder out = new StringBuilder();
         for (Integer i : list) {
-            if (out.length() > 0) out += "\t";
-            out += i;
+            if (out.length() > 0) out.append("\t");
+            out.append(i);
         }
-        return out;
+        return out.toString();
     }
 }
 

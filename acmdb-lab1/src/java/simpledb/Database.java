@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>
  * Provides a set of methods that can be used to access these variables from
  * anywhere.
- * 
+ *
  * @Threadsafe
  */
 public class Database {
@@ -18,7 +18,7 @@ public class Database {
     private final Catalog _catalog;
     private final BufferPool _bufferpool;
 
-    private final static String LOGFILENAME = "log";
+    private final static String LOG_FILE_NAME = "log";
     private final LogFile _logfile;
 
     private Database() {
@@ -26,7 +26,7 @@ public class Database {
         _bufferpool = new BufferPool(BufferPool.DEFAULT_PAGES);
         LogFile tmp = null;
         try {
-            tmp = new LogFile(new File(LOGFILENAME));
+            tmp = new LogFile(new File(LOG_FILE_NAME));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -60,13 +60,7 @@ public class Database {
             bufferPoolF = Database.class.getDeclaredField("_bufferpool");
             bufferPoolF.setAccessible(true);
             bufferPoolF.set(_instance.get(), new BufferPool(pages));
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
 //        _instance._bufferpool = new BufferPool(pages);

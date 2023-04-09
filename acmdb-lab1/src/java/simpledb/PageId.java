@@ -9,10 +9,10 @@ public interface PageId {
         This class MUST have a constructor that accepts n integer parameters,
         where n is the number of integers returned in the array from serialize.
     */
-    public int[] serialize();
+    int[] serialize();
 
-    /** @return the unique tableid hashcode with this PageId */
-    public int getTableId();
+    /** @return the unique tableId hashcode with this PageId */
+    int getTableId();
 
     /**
      * @return a hash code for this page, represented by the concatenation of
@@ -20,7 +20,7 @@ public interface PageId {
      *   key in a hash table in the BufferPool, for example.)
      * @see BufferPool
      */
-    public int hashCode();
+    int hashCode();
 
     /**
      * Compares one PageId to another.
@@ -29,8 +29,8 @@ public interface PageId {
      * @return true if the objects are equal (e.g., page numbers and table
      *   ids are the same)
      */
-    public boolean equals(Object o);
+    boolean equals(Object o);
 
-    public int pageNumber();
+    int pageNumber();
 }
 

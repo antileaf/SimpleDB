@@ -10,6 +10,11 @@ import java.util.*;
 public class SeqScan implements DbIterator {
 
     private static final long serialVersionUID = 1L;
+    
+    private TransactionId tid;
+    private int tableId;
+    private String tableAlias;
+    private DbFileIterator iterator;
 
     /**
      * Creates a sequential scan over the specified table as a part of the
@@ -17,7 +22,7 @@ public class SeqScan implements DbIterator {
      *
      * @param tid
      *            The transaction this scan is running as a part of.
-     * @param tableid
+     * @param tableId
      *            the table to scan.
      * @param tableAlias
      *            the alias of this table (needed by the parser); the returned
@@ -27,8 +32,11 @@ public class SeqScan implements DbIterator {
      *            are, but the resulting name can be null.fieldName,
      *            tableAlias.null, or null.null).
      */
-    public SeqScan(TransactionId tid, int tableid, String tableAlias) {
-        // some code goes here
+    public SeqScan(TransactionId tid, int tableId, String tableAlias) {
+        this.tid = tid;
+        this.tableId = tableId;
+        this.tableAlias = tableAlias;
+        this.iterator = Database.getCatalog().getDatabaseFile(tableId).iterator(tid);
     }
 
     /**
@@ -37,21 +45,19 @@ public class SeqScan implements DbIterator {
      *       be the actual name of the table in the catalog of the database
      * */
     public String getTableName() {
-        return null;
+        return Database.getCatalog().getTableName(this.tableId);
     }
 
     /**
      * @return Return the alias of the table this operator scans.
      * */
-    public String getAlias()
-    {
-        // some code goes here
-        return null;
+    public String getAlias() {
+        return this.tableAlias;
     }
 
     /**
-     * Reset the tableid, and tableAlias of this operator.
-     * @param tableid
+     * Reset the tableId, and tableAlias of this operator.
+     * @param tableId
      *            the table to scan.
      * @param tableAlias
      *            the alias of this table (needed by the parser); the returned
@@ -61,16 +67,17 @@ public class SeqScan implements DbIterator {
      *            are, but the resulting name can be null.fieldName,
      *            tableAlias.null, or null.null).
      */
-    public void reset(int tableid, String tableAlias) {
-        // some code goes here
+    public void reset(int tableId, String tableAlias) {
+        this.tableId = tableId;
+        this.tableAlias = tableAlias;
     }
 
-    public SeqScan(TransactionId tid, int tableid) {
-        this(tid, tableid, Database.getCatalog().getTableName(tableid));
+    public SeqScan(TransactionId tid, int tableId) {
+        this(tid, tableId, Database.getCatalog().getTableName(tableId));
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        // some code goes here
+        this.iterator.open();
     }
 
     /**
@@ -84,27 +91,24 @@ public class SeqScan implements DbIterator {
      *         prefixed with the tableAlias string from the constructor.
      */
     public TupleDesc getTupleDesc() {
-        // some code goes here
-        return null;
+        return Database.getCatalog().getTupleDesc(this.tableId);
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
-        // some code goes here
-        return false;
+        return this.iterator.hasNext();
     }
 
     public Tuple next() throws NoSuchElementException,
             TransactionAbortedException, DbException {
-        // some code goes here
-        return null;
+        return this.iterator.next();
     }
 
     public void close() {
-        // some code goes here
+        this.iterator.close();
     }
 
     public void rewind() throws DbException, NoSuchElementException,
             TransactionAbortedException {
-        // some code goes here
+        this.iterator.rewind();
     }
 }
