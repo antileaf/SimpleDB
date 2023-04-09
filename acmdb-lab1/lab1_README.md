@@ -381,14 +381,14 @@ You must submit your code (see below) as well as a short (2 pages, maximum) writ
 *    Describe any missing or incomplete elements of your code.
 *    Describe how long you spent on the lab, and whether there was anything you found particularly difficult or confusing. 
 
-###  3.1. Collaboration 
+###  3.1. Collaboration
 
 This lab should be manageable for a single person.  Therefore, teaming is prohibited in this project.
 
 ### 3.2. Submitting your assignment
 To submit your code, please create a `acmdb-lab1` directory in your github repo. Please submit your writeup as a PDF or plain text file (.txt) in the top level of your `acmdb-lab1` directory. Please do not submit a .doc or .docx.
 
-###  3.3. Submitting a bug 
+###  3.3. Submitting a bug
 
 Please submit (friendly!) bug reports to both TAs. When you do, please try to include:
 
@@ -396,12 +396,12 @@ Please submit (friendly!) bug reports to both TAs. When you do, please try to in
 * A `.java` file we can drop in the `test/simpledb` directory, compile, and run.
 * A `.txt` file with the data that reproduces the bug. We should be able to convert it to a `.dat` file using HeapFileEncoder.
 
-###  3.4. Grading 
+###  3.4. Grading
 
 <p>100% of your grade will be based on whether or not your code passes the test suite we will run over it. Before handing in your code, you should make sure it produces no errors (passes all of the tests) from both  <tt>ant test</tt> and <tt>ant systemtest</tt>.
 
 
-**Important:** before testing, we will replace your <tt>build.xml</tt> and the entire contents of the <tt>test</tt> directory with our version of these files.  This means you cannot change the format of <tt>.dat</tt> files!  You should also be careful changing our APIs. You should test that your code compiles the unmodified tests. 
+**Important:** before testing, we will replace your <tt>build.xml</tt> and the entire contents of the <tt>test</tt> directory with our version of these files.  This means you cannot change the format of <tt>.dat</tt> files!  You should also be careful changing our APIs. You should test that your code compiles the unmodified tests.
 
 In other words, we will pull your repo, replace the files mentioned above, compile it, and then grade it.  It will look roughly like this:
 
