@@ -1,7 +1,6 @@
 package simpledb;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -91,7 +90,9 @@ public class TupleDesc implements Serializable {
 	 * Constructor. This is used in merge(), otherwise should not be used directly.
 	 */
 	private TupleDesc(ArrayList<TDItem> tdItems) {
-		this.tdItems = new ArrayList<>(tdItems);
+		this.tdItems = tdItems.stream()
+				.map(item -> new TDItem(item.fieldType, item.fieldName))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 	
 	/**
@@ -108,13 +109,15 @@ public class TupleDesc implements Serializable {
 	 *            index of the field name to return. It must be a valid index.
 	 * @return the name of the ith field
 	 * @throws NoSuchElementException
-	 *             if i is not a valid field reference.
+	 *             if @i is not a valid field reference.
 	 */
 	public String getFieldName(int i) throws NoSuchElementException {
-		if (i < 0 || i >= this.numFields())
+		try {
+			return this.tdItems.get(i).fieldName;
+		}
+		catch (IndexOutOfBoundsException e) {
 			throw new NoSuchElementException("i out of range");
-		
-		return this.tdItems.get(i).fieldName;
+		}
 	}
 	
 	/**
@@ -125,7 +128,7 @@ public class TupleDesc implements Serializable {
 	 *            index.
 	 * @return the type of the ith field
 	 * @throws NoSuchElementException
-	 *             if i is not a valid field reference.
+	 *             if @i is not a valid field reference.
 	 */
 	public Type getFieldType(int i) throws NoSuchElementException {
 		if (i < 0 || i >= this.numFields())
@@ -146,13 +149,11 @@ public class TupleDesc implements Serializable {
 	public int fieldNameToIndex(String name) throws NoSuchElementException {
 		if (name == null)
 			throw new NoSuchElementException("name is null");
-		
-		for (int i = 0; i < this.numFields(); i++) {
-			if (name.equals(this.tdItems.get(i).fieldName))
-				return i;
-		}
-		
-		throw new NoSuchElementException("Field not found");
+
+		return IntStream.range(0, this.numFields())
+				.filter(i -> name.equals(this.tdItems.get(i).fieldName))
+				.findFirst()
+				.orElseThrow(() -> new NoSuchElementException("Field not found"));
 	}
 	
 	/**
@@ -198,12 +199,10 @@ public class TupleDesc implements Serializable {
 		TupleDesc other = (TupleDesc) o;
 		if (this.getSize() != other.getSize())
 			return false;
-		
-		for (int i = 0; i < this.tdItems.size(); i++)
-			if (this.tdItems.get(i).fieldType != other.tdItems.get(i).fieldType)
-				return false;
-		
-		return true;
+
+		return IntStream.range(0, this.tdItems.size())
+				.allMatch(i -> this.tdItems.get(i).fieldType
+						== other.tdItems.get(i).fieldType);
 	}
 	
 	@Override
