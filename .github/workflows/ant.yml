@@ -21,5 +21,5 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
-    - name: Build with Ant
-      run: ant -noinput -buildfile build.xml
+    - name: lab1
+      run: ant -noinput -buildfile acmdb-lab1/build.xml
