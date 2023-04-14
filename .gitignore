@@ -1,7 +1,6 @@
 *.class
 .idea/
 */bin/
-*.jar
 *.pptx
 ~*.pptx
 *.tar.bz2
