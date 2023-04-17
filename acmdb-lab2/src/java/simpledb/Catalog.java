@@ -81,7 +81,7 @@ public class Catalog {
 	 * Add a new table to the catalog.
 	 * This table has tuples formatted using the specified TupleDesc and its
 	 * contents are stored in the specified DbFile.
-	 * @param file the contents of the table to add;  file.getId() is the identfier of
+	 * @param file the contents of the table to add;  file.getId() is the identifier of
 	 *    this file/tupledesc param for the calls getTupleDesc and getFile
 	 */
 	public void addTable(DbFile file) {

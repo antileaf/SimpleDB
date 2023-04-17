@@ -1,6 +1,7 @@
 package simpledb;
 
 import java.io.*;
+import java.nio.Buffer;
 import java.util.LinkedHashMap;
 
 /**
@@ -53,7 +54,7 @@ public class BufferPool {
 	}
 	
 	public static int getPageSize() {
-		return pageSize;
+		return BufferPool.pageSize;
 	}
 	
 	// THIS FUNCTION SHOULD ONLY BE USED FOR TESTING!!
@@ -86,6 +87,8 @@ public class BufferPool {
 		if (!this.pageItemTableById.containsKey(pid)) {
 			if (this.pageItemTableById.size() >= this.numPages)
 				this.evictPage();
+			
+			assert this.pageItemTableById.size() < this.numPages;
 			
 			this.pageItemTableById.put(pid,
 					new PageItem(pid, tid, perm,
@@ -182,9 +185,14 @@ public class BufferPool {
 	 *     break simpledb if running in NO STEAL mode.
 	 */
 	public synchronized void flushAllPages() throws IOException {
-		for (PageId pid : this.pageItemTableById.keySet()) {
-			this.flushPage(pid);
-		}
+		this.pageItemTableById.keySet()
+				.forEach(pid -> {
+					try {
+						this.flushPage(pid);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
 	}
 	
 	/** Remove the specific page id from the buffer pool.
@@ -211,6 +219,7 @@ public class BufferPool {
 			Database.getCatalog().getDatabaseFile(pid.getTableId()).writePage(page);
 			page.markDirty(false, null);
 		}
+		
 	}
 	
 	/** Write all pages of the specified transaction to disk.
@@ -225,9 +234,12 @@ public class BufferPool {
 	 */
 	private synchronized void evictPage() throws DbException {
 		try {
-			this.flushPage(this.pageItemTableById.keySet().stream()
+			PageId scapegoat = this.pageItemTableById.keySet().stream()
 					.findFirst()
-					.orElseThrow(() -> new DbException("No page to evict")));
+					.orElseThrow(() -> new DbException("No page to evict"));
+			
+			this.flushPage(scapegoat);
+			this.discardPage(scapegoat);
 		}
 		catch (IOException e) {
 			e.printStackTrace();

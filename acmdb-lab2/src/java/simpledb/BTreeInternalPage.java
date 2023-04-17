@@ -117,7 +117,7 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	/** 
 	 * Retrieve the maximum number of entries this page can hold. (The number of keys)
  	 */
-	public int getMaxEntries() {        
+	public int getMaxEntries() {
 		int keySize = td.getFieldType(keyField).getLen();
 		int bitsPerEntryIncludingHeader = keySize * 8 + INDEX_SIZE * 8 + 1;
 		// extraBits are: one parent pointer, 1 byte for child page category, 
@@ -347,18 +347,18 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	 */
 	private void deleteEntry(BTreeEntry e, boolean deleteRightChild) throws DbException {
 		RecordId rid = e.getRecordId();
-		if(rid == null)
+		if (rid == null)
 			throw new DbException("tried to delete entry with null rid");
-		if((rid.getPageId().pageNumber() != pid.pageNumber()) || (rid.getPageId().getTableId() != pid.getTableId()))
+		if ((rid.getPageId().pageNumber() != pid.pageNumber()) || (rid.getPageId().getTableId() != pid.getTableId()))
 			throw new DbException("tried to delete entry on invalid page or table");
 		if (!isSlotUsed(rid.tupleno()))
 			throw new DbException("tried to delete null entry.");
-		if(deleteRightChild) {
+		if (deleteRightChild) {
 			markSlotUsed(rid.tupleno(), false); 
 		}
 		else {
-			for(int i = rid.tupleno() - 1; i >= 0; i--) {
-				if(isSlotUsed(i)) {
+			for (int i = rid.tupleno() - 1; i >= 0; i--) {
+				if (isSlotUsed(i)) {
 					children[i] = children[rid.tupleno()];
 					markSlotUsed(rid.tupleno(), false); 
 					break;
@@ -404,25 +404,25 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	 */
 	public void updateEntry(BTreeEntry e) throws DbException {
 		RecordId rid = e.getRecordId();
-		if(rid == null)
+		if (rid == null)
 			throw new DbException("tried to update entry with null rid");
-		if((rid.getPageId().pageNumber() != pid.pageNumber()) || (rid.getPageId().getTableId() != pid.getTableId()))
+		if ((rid.getPageId().pageNumber() != pid.pageNumber()) || (rid.getPageId().getTableId() != pid.getTableId()))
 			throw new DbException("tried to update entry on invalid page or table");
 		if (!isSlotUsed(rid.tupleno()))
 			throw new DbException("tried to update null entry.");
 		
-		for(int i = rid.tupleno() + 1; i < numSlots; i++) {
-			if(isSlotUsed(i)) {
-				if(keys[i].compare(Op.LESS_THAN, e.getKey())) {
+		for (int i = rid.tupleno() + 1; i < numSlots; i++) {
+			if (isSlotUsed(i)) {
+				if (keys[i].compare(Op.LESS_THAN, e.getKey())) {
 					throw new DbException("attempt to update entry with invalid key " + e.getKey() +
 							" HINT: updated key must be less than or equal to keys on the right");
 				}
 				break;
 			}	
 		}
-		for(int i = rid.tupleno() - 1; i >= 0; i--) {
-			if(isSlotUsed(i)) {
-				if(i > 0 && keys[i].compare(Op.GREATER_THAN, e.getKey())) {
+		for (int i = rid.tupleno() - 1; i >= 0; i--) {
+			if (isSlotUsed(i)) {
+				if (i > 0 && keys[i].compare(Op.GREATER_THAN, e.getKey())) {
 					throw new DbException("attempt to update entry with invalid key " + e.getKey() +
 							" HINT: updated key must be greater than or equal to keys on the left");
 				}
@@ -445,20 +445,20 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 		if (!e.getKey().getType().equals(td.getFieldType(keyField)))
 			throw new DbException("key field type mismatch, in insertEntry");
 
-		if(e.getLeftChild().getTableId() != pid.getTableId() || e.getRightChild().getTableId() != pid.getTableId())
+		if (e.getLeftChild().getTableId() != pid.getTableId() || e.getRightChild().getTableId() != pid.getTableId())
 			throw new DbException("table id mismatch in insertEntry");
 
-		if(childCategory == 0) {
-			if(e.getLeftChild().pgcateg() != e.getRightChild().pgcateg())
+		if (childCategory == 0) {
+			if (e.getLeftChild().pgcateg() != e.getRightChild().pgcateg())
 				throw new DbException("child page category mismatch in insertEntry");
 
 			childCategory = e.getLeftChild().pgcateg();
 		}
-		else if(e.getLeftChild().pgcateg() != childCategory || e.getRightChild().pgcateg() != childCategory)
+		else if (e.getLeftChild().pgcateg() != childCategory || e.getRightChild().pgcateg() != childCategory)
 			throw new DbException("child page category mismatch in insertEntry");
 
 		// if this is the first entry, add it and return
-		if(getNumEmptySlots() == getMaxEntries()) {
+		if (getNumEmptySlots() == getMaxEntries()) {
 			children[0] = e.getLeftChild().pageNumber();
 			children[1] = e.getRightChild().pageNumber();
 			keys[1] = e.getKey();
@@ -483,9 +483,9 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 		// find the child pointer matching the left or right child in this entry
 		int lessOrEqKey = -1;
 		for (int i=0; i<numSlots; i++) {
-			if(isSlotUsed(i)) {
-				if(children[i] == e.getLeftChild().pageNumber() || children[i] == e.getRightChild().pageNumber()) {
-					if(i > 0 && keys[i].compare(Op.GREATER_THAN, e.getKey())) {
+			if (isSlotUsed(i)) {
+				if (children[i] == e.getLeftChild().pageNumber() || children[i] == e.getRightChild().pageNumber()) {
+					if (i > 0 && keys[i].compare(Op.GREATER_THAN, e.getKey())) {
 						throw new DbException("attempt to insert invalid entry with left child " + 
 								e.getLeftChild().pageNumber() + ", right child " + 
 								e.getRightChild().pageNumber() + " and key " + e.getKey() +
@@ -494,13 +494,13 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 								" left and right keys");
 					}
 					lessOrEqKey = i;
-					if(children[i] == e.getRightChild().pageNumber()) {
+					if (children[i] == e.getRightChild().pageNumber()) {
 						children[i] = e.getLeftChild().pageNumber();
 					}
 				}
-				else if(lessOrEqKey != -1) {
+				else if (lessOrEqKey != -1) {
 					// validate that the next key is greater than or equal to the one we are inserting
-					if(keys[i].compare(Op.LESS_THAN, e.getKey())) {
+					if (keys[i].compare(Op.LESS_THAN, e.getKey())) {
 						throw new DbException("attempt to insert invalid entry with left child " + 
 								e.getLeftChild().pageNumber() + ", right child " + 
 								e.getRightChild().pageNumber() + " and key " + e.getKey() +
@@ -513,7 +513,7 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 			}
 		}
 
-		if(lessOrEqKey == -1) {
+		if (lessOrEqKey == -1) {
 			throw new DbException("attempt to insert invalid entry with left child " + 
 					e.getLeftChild().pageNumber() + ", right child " + 
 					e.getRightChild().pageNumber() + " and key " + e.getKey() +
@@ -525,14 +525,14 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 		// shift entries back or forward to fill empty slot and make room for new entry
 		// while keeping entries in sorted order
 		int goodSlot = -1;
-		if(emptySlot < lessOrEqKey) {
-			for(int i = emptySlot; i < lessOrEqKey; i++) {
+		if (emptySlot < lessOrEqKey) {
+			for (int i = emptySlot; i < lessOrEqKey; i++) {
 				moveEntry(i+1, i);
 			}
 			goodSlot = lessOrEqKey;
 		}
 		else {
-			for(int i = emptySlot; i > lessOrEqKey + 1; i--) {
+			for (int i = emptySlot; i > lessOrEqKey + 1; i--) {
 				moveEntry(i-1, i);
 			}
 			goodSlot = lessOrEqKey + 1;
@@ -551,7 +551,7 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	 * headers
 	 */
 	private void moveEntry(int from, int to) {
-		if(!isSlotUsed(to) && isSlotUsed(from)) {
+		if (!isSlotUsed(to) && isSlotUsed(from)) {
 			markSlotUsed(to, true);
 			keys[to] = keys[from];
 			children[to] = children[from];
@@ -573,8 +573,8 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 		int cnt = 0;
 		// start from 1 because the first key slot is not used
 		// since a node with m keys has m+1 pointers
-		for(int i=1; i<numSlots; i++)
-			if(!isSlotUsed(i))
+		for (int i=1; i<numSlots; i++)
+			if (!isSlotUsed(i))
 				cnt++;
 		return cnt;
 	}
@@ -596,7 +596,7 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 		int headerbyte = (i - headerbit) / 8;
 
 		Debug.log(1, "BTreeInternalPage.setSlot: setting slot %d to %b", i, value);
-		if(value)
+		if (value)
 			header[headerbyte] |= 1 << headerbit;
 		else
 			header[headerbyte] &= (0xFF ^ (1 << headerbit));
@@ -625,19 +625,18 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	 * @throws NoSuchElementException
 	 */
 	protected Field getKey(int i) throws NoSuchElementException {
-
 		// key at slot 0 is not used
-		if (i <= 0 || i >= keys.length)
+		if (i <= 0 || i >= this.keys.length)
 			throw new NoSuchElementException();
 
 		try {
-			if(!isSlotUsed(i)) {
-				Debug.log(1, "BTreeInternalPage.getKey: slot %d in %d:%d is not used", i, pid.getTableId(), pid.pageNumber());
+			if (!isSlotUsed(i)) {
+				Debug.log(1, "BTreeInternalPage.getKey: slot %d in %d:%d is not used", i, this.pid.getTableId(), pid.pageNumber());
 				return null;
 			}
 
 			Debug.log(1, "BTreeInternalPage.getKey: returning key %d", i);
-			return keys[i];
+			return this.keys[i];
 
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new NoSuchElementException();
@@ -651,18 +650,17 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	 * @throws NoSuchElementException
 	 */
 	protected BTreePageId getChildId(int i) throws NoSuchElementException {
-
-		if (i < 0 || i >= children.length)
+		if (i < 0 || i >= this.children.length)
 			throw new NoSuchElementException();
 
 		try {
-			if(!isSlotUsed(i)) {
+			if (!this.isSlotUsed(i)) {
 				Debug.log(1, "BTreeInternalPage.getChildId: slot %d in %d:%d is not used", i, pid.getTableId(), pid.pageNumber());
 				return null;
 			}
 
 			Debug.log(1, "BTreeInternalPage.getChildId: returning child id %d", i);
-			return new BTreePageId(pid.getTableId(), children[i], childCategory);
+			return new BTreePageId(this.pid.getTableId(), this.children[i], this.childCategory);
 
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new NoSuchElementException();
@@ -682,40 +680,76 @@ public class BTreeInternalPage extends BTreePage implements Iterable<BTreeEntry>
 	}
 	
 	public BTreePageId getLeftmostChild() {
-		return IntStream.range(0, this.numSlots)
-				.mapToObj(this::getChildNoException)
-				.filter(Objects::nonNull)
+//		return IntStream.range(0, this.numSlots)
+//				.mapToObj(this::getChildNoException)
+//				.filter(Objects::nonNull)
+//				.findFirst()
+//				.orElse(null);
+		return this.entryStream()
+				.map(BTreeEntry::getLeftChild)
 				.findFirst()
 				.orElse(null);
+		// return this.iterator().hasNext() ? this.iterator().next().getLeftChild() : null;
 	}
 	
 	public BTreePageId getRightmostChild() {
-		return IntStream.range(0, this.numSlots)
-				.mapToObj(i -> this.numSlots - i - 1)
-				.map(this::getChildNoException)
-				.filter(Objects::nonNull)
+//		return IntStream.range(0, this.numSlots)
+//				.mapToObj(i -> this.numSlots - i - 1)
+//				.map(this::getChildNoException)
+//				.filter(Objects::nonNull)
+//				.findFirst()
+//				.orElse(null);
+		return this.reversedEntryStream()
+				.map(BTreeEntry::getRightChild)
 				.findFirst()
 				.orElse(null);
+		// return this.reverseIterator().hasNext() ? this.reverseIterator().next().getRightChild() : null;
 	}
 	
 	/**
 	 * @return the stream of all non-empty ENTRIES on this page
 	 */
+	// @Deprecated
 	public Stream<BTreeEntry> entryStream() {
-		return StreamSupport.stream(
-				Spliterators.spliteratorUnknownSize(
-						this.iterator(), Spliterator.ORDERED),
-				false);
+		 return StreamSupport.stream(
+		 		Spliterators.spliteratorUnknownSize(
+		 				this.iterator(), Spliterator.ORDERED), false)
+				 .limit(this.getNumEntries());
+		// return Stream.iterate(this.iterator(),
+		// 		BTreeInternalPageIterator::hasNext,
+		// 		BTreeInternalPageIterator::next);
 	}
 	
 	/**
 	 * @return the reversed stream of all non-empty ENTRIES on this page
 	 */
+	// @Deprecated
 	public Stream<BTreeEntry> reversedEntryStream() {
-		return StreamSupport.stream(
-				Spliterators.spliteratorUnknownSize(
-						this.reverseIterator(), Spliterator.ORDERED),
-				false);
+		 return StreamSupport.stream(
+		 		Spliterators.spliteratorUnknownSize(
+		 				this.reverseIterator(), Spliterator.ORDERED), false)
+				 .limit(this.getNumEntries());
+		// return Stream.iterate(this.reverseIterator(),
+		// 		BTreeInternalPageReverseIterator::hasNext, 
+		// 		BTreeInternalPageReverseIterator::next);
+	}
+	
+	public String debug() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("keys:");
+		for (int i = 1; i < this.keys.length; i++) {
+			if (this.isSlotUsed(i)) {
+				sb.append(String.format(" (%d, %s)", i, this.keys[i].toString()));
+			}
+		}
+		sb.append("\nchildren:");
+		for (int i = 0; i < this.children.length; i++) {
+			if (this.isSlotUsed(i)) {
+				sb.append(String.format(" (%d, %d)", i, this.children[i]));
+			}
+		}
+		
+		return sb.toString();
 	}
 }
 
@@ -737,9 +771,9 @@ class BTreeInternalPageIterator implements Iterator<BTreeEntry> {
 			return true;
 
 		try {
-			if(prevChildId == null) {
+			if (prevChildId == null) {
 				prevChildId = p.getChildId(0);
-				if(prevChildId == null) {
+				if (prevChildId == null) {
 					return false;
 				}
 			}
@@ -747,7 +781,7 @@ class BTreeInternalPageIterator implements Iterator<BTreeEntry> {
 				int entry = curEntry++;
 				Field key = p.getKey(entry);
 				BTreePageId childId = p.getChildId(entry);
-				if(key != null && childId != null) {
+				if (key != null && childId != null) {
 					nextToReturn = new BTreeEntry(key, prevChildId, childId);
 					nextToReturn.setRecordId(new RecordId(p.pid, entry));
 					prevChildId = childId;
@@ -794,9 +828,12 @@ class BTreeInternalPageReverseIterator implements Iterator<BTreeEntry> {
 	public BTreeInternalPageReverseIterator(BTreeInternalPage p) {
 		this.p = p;
 		this.curEntry = p.getMaxEntries();
-		while(!p.isSlotUsed(curEntry) && curEntry > 0) {
+		while (!p.isSlotUsed(curEntry) && curEntry > 0) {
 			--curEntry;
 		}
+		
+		if (this.p.iterator().hasNext())
+			assert curEntry > 0;
 	}
 
 	public boolean hasNext() {
@@ -804,28 +841,33 @@ class BTreeInternalPageReverseIterator implements Iterator<BTreeEntry> {
 			return true;
 
 		try {
-			if(childId == null || key == null || recordId == null) {
+			if (childId == null || key == null || recordId == null) {
 				childId = p.getChildId(curEntry);
 				key = p.getKey(curEntry);
+				
 				recordId = new RecordId(p.pid, curEntry);
-				if(childId == null || key == null) {
+				if (childId == null || key == null) {
+//					if (this.p.iterator().hasNext())
+//						assert curEntry > 0;
+					
 					return false;
 				}
 			}
 			while (curEntry > 0) {
 				int entry = --curEntry;
 				BTreePageId nextChildId = p.getChildId(entry);
-				if(nextChildId != null) {
+				if (nextChildId != null) {
 					nextToReturn = new BTreeEntry(key, nextChildId, childId);
 					nextToReturn.setRecordId(recordId);
 					childId = nextChildId;
-					key = p.getKey(entry);
+					key = (entry > 0 ? p.getKey(entry) : null); // Shi bur shi you bing
 					recordId = new RecordId(p.pid, entry);
 					return true;
 				}
 			}
 			return false;
-		} catch(NoSuchElementException e) {
+		} catch (NoSuchElementException e) {
+//			e.printStackTrace(); // wtf
 			return false;
 		}
 	}

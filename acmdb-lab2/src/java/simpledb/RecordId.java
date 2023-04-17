@@ -71,6 +71,7 @@ public class RecordId implements Serializable {
 	/**
 	 * @return a copy of this RecordId.
 	 */
+	@Deprecated
 	public RecordId makeCopy() {
 		return new RecordId(this.pid, this.index);
 	}

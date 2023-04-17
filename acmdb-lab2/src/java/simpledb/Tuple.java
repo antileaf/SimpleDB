@@ -61,7 +61,8 @@ public class Tuple implements Serializable {
 	 *            the new RecordId for this tuple.
 	 */
 	public void setRecordId(RecordId rid) {
-		this.recordId = rid.makeCopy();
+//		this.recordId = rid == null ? null : rid.makeCopy();
+		this.recordId = rid;
 	}
 	
 	/**
@@ -109,7 +110,7 @@ public class Tuple implements Serializable {
 	}
 	
 	/**
-	 * reset the TupleDesc of thi tuple
+	 * reset the TupleDesc of the tuple
 	 * */
 	public void resetTupleDesc(TupleDesc td) {
 		this.tupleDesc = td.makeCopy();

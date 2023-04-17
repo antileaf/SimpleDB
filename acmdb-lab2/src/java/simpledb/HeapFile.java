@@ -125,15 +125,17 @@ public class HeapFile implements DbFile {
 	
 	public class HeapFileIterator implements DbFileIterator {
 		private final TransactionId tid;
+		private Iterator<Stream<Tuple>> st;
 		private Iterator<Tuple> it;
+//		private int cur;
 		
 		public HeapFileIterator(TransactionId tid) {
 			this.tid = tid;
 			this.close(); // Notice that the iterator is closed by default
 		}
 		
-		public void open() {
-			this.it = IntStream.range(0, HeapFile.this.numPages())
+		public void open() throws TransactionAbortedException, DbException {
+			this.st = IntStream.range(0, HeapFile.this.numPages())
 					.mapToObj(i -> {
 						try {
 							return ((HeapPage) Database.getBufferPool().getPage(
@@ -147,28 +149,68 @@ public class HeapFile implements DbFile {
 						}
 					})
 					.filter(Objects::nonNull)
-					.reduce(Stream::concat)
-					.orElse(Stream.empty())
-					.iterator();
+					.iterator(); // Need gum mar eye your
+			
+			this.hasNext();
+			// Stream runs much faster than which was written myself
+			// Why???
+			
+//			this.cur = 0;
+//			this.hasNext();
 		}
 		
-		public boolean hasNext() {
-			return this.it != null && this.it.hasNext();
+		public boolean hasNext() throws TransactionAbortedException, DbException {
+//			if (this.cur == -1 || this.cur >= HeapFile.this.numPages())
+//				return false;
+//
+//			if (this.it != null && this.it.hasNext())
+//				return true;
+//
+//			if (this.it != null)
+//				this.cur++;
+//
+//			while (this.cur < HeapFile.this.numPages()) {
+//				this.it = ((HeapPage) Database.getBufferPool().getPage(
+//						this.tid,
+//						new HeapPageId(HeapFile.this.getId(), this.cur),
+//						Permissions.READ_ONLY
+//				)).iterator();
+//
+//				if (!this.it.hasNext()) {
+//					this.it = null;
+//					this.cur++;
+//				}
+//				else
+//					return true;
+// 			}
+//
+//			this.it = null;
+//
+//			return false;
+			
+			while (!this.it.hasNext() && this.st.hasNext()) {
+				this.it = this.st.next().iterator();
+			}
+			
+			return this.it.hasNext();
 		}
 		
-		public Tuple next() throws NoSuchElementException {
-			if (this.it == null || !this.it.hasNext())
+		public Tuple next() throws NoSuchElementException, TransactionAbortedException, DbException {
+			if (!this.hasNext())
 				throw new NoSuchElementException();
 			
 			return this.it.next();
 		}
 		
-		public void rewind() {
+		public void rewind() throws TransactionAbortedException, DbException {
 			this.close();
 			this.open();
 		}
 		
 		public void close() {
+//			this.cur = -1;
+//			this.it = null;
+			this.st = Stream.empty().map(foo -> (Stream<Tuple>) null).iterator();
 			this.it = Stream.empty().map(foo -> (Tuple) null).iterator();
 		}
 	}

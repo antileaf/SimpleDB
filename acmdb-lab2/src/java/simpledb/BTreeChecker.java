@@ -61,7 +61,7 @@ public class BTreeChecker {
             DbException, IOException, TransactionAbortedException {
         BTreeRootPtrPage rtptr = bt.getRootPtrPage(tid, dirtypages);
 
-        if (rtptr.getRootId() == null) { // non existent root is a legal state.
+        if (rtptr.getRootId() == null) { // non-existent root is a legal state.
             return;
         } else {
             SubtreeSummary res = checkSubTree(bt, tid, dirtypages,
