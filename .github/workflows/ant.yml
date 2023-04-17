@@ -5,7 +5,7 @@ name: Java CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "dev" ]
   pull_request:
     branches: [ "master" ]
 
@@ -15,11 +15,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-    - name: lab1-systemtest
-      run: ant -noinput -buildfile acmdb-lab1/build.xml systemtest
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: lab1-systemtest
+        run: ant -noinput -buildfile acmdb-lab1/build.xml systemtest
+
+      - name: lab2-systemtest
+        run: ant -noinput -buildfile acmdb-lab2/build.xml systemtest
