@@ -233,8 +233,9 @@ public class TupleDesc implements Serializable {
 	/**
 	 * @return a copy of this TupleDesc.
 	 */
+	@Deprecated
 	public TupleDesc makeCopy() {
 		return new TupleDesc(this.tdItems);
 	}
-	// I don't want to use clone() since IDEA always warn me. That's annoying.
+	// Don't make a copy, or it will cost very much time and memory.
 }

@@ -28,7 +28,7 @@ public class Tuple implements Serializable {
 	 *            instance with at least one field.
 	 */
 	public Tuple(TupleDesc td) {
-		this.tupleDesc = td.makeCopy();
+		this.tupleDesc = td; // .makeCopy();
 		this.fields = new ArrayList<>(Arrays.asList(new Field[td.numFields()]));
 	}
 	
@@ -113,6 +113,6 @@ public class Tuple implements Serializable {
 	 * reset the TupleDesc of the tuple
 	 * */
 	public void resetTupleDesc(TupleDesc td) {
-		this.tupleDesc = td.makeCopy();
+		this.tupleDesc = td; // .makeCopy();
 	}
 }
