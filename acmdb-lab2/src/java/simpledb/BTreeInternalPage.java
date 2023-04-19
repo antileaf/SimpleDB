@@ -860,7 +860,7 @@ class BTreeInternalPageReverseIterator implements Iterator<BTreeEntry> {
 					nextToReturn = new BTreeEntry(key, nextChildId, childId);
 					nextToReturn.setRecordId(recordId);
 					childId = nextChildId;
-					key = (entry > 0 ? p.getKey(entry) : null); // Shi bur shi you bing
+					key = p.getKey(entry); // Test
 					recordId = new RecordId(p.pid, entry);
 					return true;
 				}
