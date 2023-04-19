@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
  * with the data for each field.
  */
 public class Tuple implements Serializable {
-	
 	private static final long serialVersionUID = 1L;
 	
 	private TupleDesc tupleDesc;
@@ -30,6 +29,13 @@ public class Tuple implements Serializable {
 	public Tuple(TupleDesc td) {
 		this.tupleDesc = td; // .makeCopy();
 		this.fields = new ArrayList<>(Arrays.asList(new Field[td.numFields()]));
+	}
+	
+	// This constructor should only be used by Tuple.merge().
+	private Tuple(TupleDesc td, ArrayList<Field> fields) {
+		assert td.numFields() == fields.size();
+		this.tupleDesc = td;
+		this.fields = fields;
 	}
 	
 	/**
@@ -114,5 +120,13 @@ public class Tuple implements Serializable {
 	 * */
 	public void resetTupleDesc(TupleDesc td) {
 		this.tupleDesc = td; // .makeCopy();
+	}
+	
+	public static Tuple merge(Tuple a, Tuple b) {
+		return new Tuple(TupleDesc.merge(a.getTupleDesc(), b.getTupleDesc()),
+				new ArrayList<Field>() {{
+					this.addAll(a.fields);
+					this.addAll(b.fields);
+				}});
 	}
 }
