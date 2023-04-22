@@ -47,21 +47,20 @@ public interface Aggregator extends Serializable {
             return values()[i];
         }
         
-        public String toString()
-        {
-        	if (this==MIN)
+        public String toString() {
+        	if (this == MIN)
         		return "min";
-        	if (this==MAX)
+        	if (this == MAX)
         		return "max";
-        	if (this==SUM)
+        	if (this == SUM)
         		return "sum";
-        	if (this==SUM_COUNT)
+        	if (this == SUM_COUNT)
     			return "sum_count";
-        	if (this==AVG)
+        	if (this == AVG)
         		return "avg";
-        	if (this==COUNT)
+        	if (this == COUNT)
         		return "count";
-        	if (this==SC_AVG)
+        	if (this == SC_AVG)
     			return "sc_avg";
         	throw new IllegalStateException("impossible to reach here");
         }
@@ -81,5 +80,7 @@ public interface Aggregator extends Serializable {
      * @see simpledb.TupleIterator for a possible helper
      */
     public DbIterator iterator();
+	
+	public void clear();
     
 }

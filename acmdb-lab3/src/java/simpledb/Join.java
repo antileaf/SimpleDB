@@ -1,8 +1,6 @@
 package simpledb;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
-import java.util.*;
+import java.util.NoSuchElementException;
 
 /**
  * The Join operator implements the relational join operation.
@@ -120,9 +118,9 @@ public class Join extends Operator {
 	}
 	
 	@Override
-	public void setChildren(DbIterator[] children) throws InvalidArgumentException {
+	public void setChildren(DbIterator[] children) throws DbException {
 		if (children.length != 2)
-			throw new InvalidArgumentException(new String[] { "Join requires 2 children" });
+			throw new DbException("Join requires 2 children");
 		
 		this.child1 = children[0];
 		this.child2 = children[1];

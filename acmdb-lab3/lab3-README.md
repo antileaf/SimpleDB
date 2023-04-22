@@ -610,7 +610,7 @@ Project(Join(Join(Filter(a),pa),p))
 Our reference implementation can run Query 1 in about .35 seconds, Query 2 in about 1.5 seconds, and Query 3 in about 3.75 seconds. We implemented a special-purpose join operator for equality joins but did little else to optimize performance.
 
 
-## 3. Logistics 
+## 3. Logistics
 
 You must submit your code (see below) as well as a short (2 pages, maximum)
 writeup describing your approach.  This writeup should:

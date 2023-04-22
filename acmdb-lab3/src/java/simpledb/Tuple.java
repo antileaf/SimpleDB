@@ -31,11 +31,18 @@ public class Tuple implements Serializable {
 		this.fields = new ArrayList<>(Arrays.asList(new Field[td.numFields()]));
 	}
 	
-	// This constructor should only be used by Tuple.merge().
 	private Tuple(TupleDesc td, ArrayList<Field> fields) {
 		assert td.numFields() == fields.size();
 		this.tupleDesc = td;
 		this.fields = fields;
+	}
+	
+	public static Tuple fromArrayList(TupleDesc td, ArrayList<Field> fields) {
+		return new Tuple(td, fields);
+	}
+	
+	public static Tuple fromArray(TupleDesc td, Field[] fields) {
+		return new Tuple(td, new ArrayList<>(Arrays.asList(fields)));
 	}
 	
 	/**

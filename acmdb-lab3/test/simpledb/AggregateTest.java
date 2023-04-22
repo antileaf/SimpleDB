@@ -107,6 +107,14 @@ public class AggregateTest extends SimpleDbTestBase {
 
     op.rewind();
     min.open();
+    
+//    StringBuilder sb = new StringBuilder();
+//    while (op.hasNext()) {
+//      sb.append(op.next().toString());
+//      sb.append(",");
+//    }
+//    throw new DbException("op: " + sb);
+    
     TestUtil.matchAllTuples(min, op);
   }
 

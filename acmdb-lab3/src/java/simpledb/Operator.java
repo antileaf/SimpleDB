@@ -1,7 +1,5 @@
 package simpledb;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.util.NoSuchElementException;
 
 /**
@@ -82,7 +80,7 @@ public abstract class Operator implements DbIterator {
      *            the DbIterators which are to be set as the children(child) of
      *            this operator
      * */
-    public abstract void setChildren(DbIterator[] children) throws InvalidArgumentException;
+    public abstract void setChildren(DbIterator[] children) throws DbException;
 
     /**
      * @return return the TupleDesc of the output tuples of this operator

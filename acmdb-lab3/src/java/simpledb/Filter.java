@@ -1,8 +1,6 @@
 package simpledb;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
-import java.util.*;
+import java.util.NoSuchElementException;
 
 /**
  * Filter is an operator that implements a relational select.
@@ -76,9 +74,9 @@ public class Filter extends Operator {
 	}
 	
 	@Override
-	public void setChildren(DbIterator[] children) throws InvalidArgumentException {
+	public void setChildren(DbIterator[] children) throws DbException {
 		if (children.length != 1) {
-			throw new InvalidArgumentException(new String[] { "Filter requires 1 child" });
+			throw new DbException("Filter requires 1 child");
 		}
 		
 		this.child = children[0];

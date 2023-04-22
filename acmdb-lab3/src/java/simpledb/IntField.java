@@ -1,6 +1,7 @@
 package simpledb;
 
 import java.io.*;
+import java.util.stream.IntStream;
 
 /**
  * Instance of Field that stores a single integer.
@@ -52,25 +53,25 @@ public class IntField implements Field {
         IntField iVal = (IntField) val;
 
         switch (op) {
-        case EQUALS:
-            return value == iVal.value;
-        case NOT_EQUALS:
-            return value != iVal.value;
-
-        case GREATER_THAN:
-            return value > iVal.value;
-
-        case GREATER_THAN_OR_EQ:
-            return value >= iVal.value;
-
-        case LESS_THAN:
-            return value < iVal.value;
-
-        case LESS_THAN_OR_EQ:
-            return value <= iVal.value;
-
-    case LIKE:
-        return value == iVal.value;
+            case EQUALS:
+                return value == iVal.value;
+            case NOT_EQUALS:
+                return value != iVal.value;
+    
+            case GREATER_THAN:
+                return value > iVal.value;
+    
+            case GREATER_THAN_OR_EQ:
+                return value >= iVal.value;
+    
+            case LESS_THAN:
+                return value < iVal.value;
+    
+            case LESS_THAN_OR_EQ:
+                return value <= iVal.value;
+    
+            case LIKE:
+                return value == iVal.value;
         }
 
         return false;
@@ -83,4 +84,16 @@ public class IntField implements Field {
 	public Type getType() {
 		return Type.INT_TYPE;
 	}
+    
+//    public static IntField[] fromIntArray(int[] array) {
+//        return IntStream.of(array)
+//                .mapToObj(IntField::new)
+//                .toArray(IntField[]::new);
+//    }
+    
+    public static IntField[] fromInts(int... array) {
+        return IntStream.of(array)
+                .mapToObj(IntField::new)
+                .toArray(IntField[]::new);
+    }
 }
