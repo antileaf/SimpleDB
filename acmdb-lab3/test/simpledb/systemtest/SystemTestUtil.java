@@ -7,12 +7,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 
 import simpledb.*;
 
 public class SystemTestUtil {
+	public static String toString(Tuple...t) {
+		StringBuilder s = new StringBuilder();
+		for (Tuple tup : t) {
+			s.append("(").append(tup.toString()).append(") ");
+		}
+		return s.toString();
+	}
+	
+	public static Tuple[] getAllTuples(DbIterator it) throws DbException, TransactionAbortedException {
+		it.rewind();
+		
+		List<Tuple> tuples = new ArrayList<Tuple>();
+		while (it.hasNext()) {
+			tuples.add(it.next());
+		}
+		
+		return tuples.toArray(new Tuple[0]);
+	}
+	
     public static final TupleDesc SINGLE_INT_DESCRIPTOR =
             new TupleDesc(new Type[]{Type.INT_TYPE});
 
@@ -125,8 +145,16 @@ public class SystemTestUtil {
             boolean isExpected = copy.remove(list);
             Debug.log("scanned tuple: %s (%s)", t, isExpected ? "expected" : "not expected");
             if (!isExpected) {
-                Assert.fail("expected tuples does not contain: " + t);
-            }
+				Assert.fail("expected tuples does not contain: " + t);
+//				Assert.fail("expected: " + toString(getAllTuples(iterator)) + "\nactual: " +
+//						copy.stream()
+//								.map(foo -> foo.stream()
+//										.map(Object::toString)
+//										.collect(Collectors.joining(" ")))
+//								.map(foo -> "(" + foo + ")")
+//								.collect(Collectors.joining("\n"))
+//				);
+			}
         }
         iterator.close();
 

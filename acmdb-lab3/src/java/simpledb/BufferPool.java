@@ -1,8 +1,9 @@
 package simpledb;
 
 import java.io.*;
-import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -50,7 +51,7 @@ public class BufferPool {
 	 */
 	public BufferPool(int numPages) {
 		this.numPages = numPages;
-		this.pageItemTableById = new LinkedHashMap<>();
+		this.pageItemTableById = new LinkedHashMap<>(0, 0.75f, true);
 	}
 	
 	public static int getPageSize() {
@@ -156,7 +157,15 @@ public class BufferPool {
 	public void insertTuple(TransactionId tid, int tableId, Tuple t)
 			throws DbException, IOException, TransactionAbortedException {
 		Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid, t)
-						.forEach(page -> page.markDirty(true, tid));
+				.forEach(page -> {
+					try {
+						this.checkAndUpdate(tid, page);
+					} catch (DbException e) {
+						e.printStackTrace();
+					}
+					
+					page.markDirty(true, tid);
+				});
 	}
 	
 	/**
@@ -176,7 +185,15 @@ public class BufferPool {
 			throws DbException, IOException, TransactionAbortedException {
 		Database.getCatalog().getDatabaseFile(
 				t.getRecordId().getPageId().getTableId()).deleteTuple(tid, t)
-				.forEach(page -> page.markDirty(true, tid));
+				.forEach(page -> {
+					try {
+						this.checkAndUpdate(tid, page);
+					} catch (DbException e) {
+						e.printStackTrace();
+					}
+					
+					page.markDirty(true, tid);
+				});
 	}
 	
 	/**
@@ -185,7 +202,7 @@ public class BufferPool {
 	 *     break simpledb if running in NO STEAL mode.
 	 */
 	public synchronized void flushAllPages() throws IOException {
-		this.pageItemTableById.keySet()
+		new ArrayList<>(this.pageItemTableById.keySet())
 				.forEach(pid -> {
 					try {
 						this.flushPage(pid);
@@ -212,7 +229,7 @@ public class BufferPool {
 	 * @param pid an ID indicating the page to flush
 	 */
 	private synchronized void flushPage(PageId pid) throws IOException {
-		assert(this.pageItemTableById.containsKey(pid));
+		assert this.pageItemTableById.containsKey(pid);
 		
 		Page page = this.pageItemTableById.get(pid).page;
 		if (page.isDirty() != null) {
@@ -247,4 +264,15 @@ public class BufferPool {
 		}
 	}
 	
+	private void checkAndUpdate(TransactionId tid, Page page) throws DbException {
+		if (!this.pageItemTableById.containsKey(page.getId()) &&
+				this.pageItemTableById.size() >= this.numPages)
+			this.evictPage();
+		
+		this.pageItemTableById.put(page.getId(), new PageItem(
+				page.getId(),
+				tid,
+				Permissions.READ_WRITE,
+				page));
+	}
 }

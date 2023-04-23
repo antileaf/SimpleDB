@@ -59,13 +59,17 @@ public class Join extends Operator {
 		return TupleDesc.merge(this.child1.getTupleDesc(), this.child2.getTupleDesc());
 	}
 	
+	@Override
 	public void open() throws DbException, NoSuchElementException,
 			TransactionAbortedException {
+		super.open();
 		this.child1.open();
 		this.child2.open();
 	}
 	
+	@Override
 	public void close() {
+		super.close();
 		this.child1.close();
 		this.child2.close();
 	}
@@ -94,9 +98,11 @@ public class Join extends Operator {
 	 * @see JoinPredicate#filter
 	 */
 	protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-		while (this.child1.hasNext()) {
-			if (this.cur1 == null)
+		while (this.cur1 != null || this.child1.hasNext()) {
+			if (this.cur1 == null) {
 				this.cur1 = this.child1.next();
+				this.child2.rewind();
+			}
 			
 			while (this.child2.hasNext()) {
 				Tuple cur2 = this.child2.next();
@@ -105,8 +111,7 @@ public class Join extends Operator {
 					return Tuple.merge(this.cur1, cur2);
 			}
 			
-			if (this.child1.hasNext())
-				this.child2.rewind();
+			this.cur1 = null;
 		}
 		
 		return null;

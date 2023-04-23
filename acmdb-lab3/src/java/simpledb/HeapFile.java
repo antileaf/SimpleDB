@@ -2,6 +2,7 @@ package simpledb;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -75,6 +76,7 @@ public class HeapFile implements DbFile {
 			
 			byte[] data = new byte[size];
 			f.read(data, 0, size);
+			f.close();
 			
 			return new HeapPage((HeapPageId) pid, data);
 		}
@@ -94,7 +96,7 @@ public class HeapFile implements DbFile {
 		try (RandomAccessFile f = new RandomAccessFile(this.file, "rw")) {
 			f.seek((long) size * page.getId().pageNumber());
 			
-			f.write(page.getPageData(), 0, size);
+			f.write(page.getPageData()); // fuck
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -112,15 +114,43 @@ public class HeapFile implements DbFile {
 	// see DbFile.java for javadocs
 	public ArrayList<Page> insertTuple(TransactionId tid, Tuple t)
 			throws DbException, IOException, TransactionAbortedException {
-		// TODO
-		return null;
+		final boolean[] isNewPage = {false};
+		
+		HeapPage page = this.getPagesStream(tid, Permissions.READ_WRITE)
+				.filter(foo -> foo.getNumEmptySlots() > 0)
+				.findFirst()
+				.orElseGet(() -> {
+					try {
+						isNewPage[0] = true;
+						return new HeapPage(
+								new HeapPageId(this.getId(), this.numPages()),
+								HeapPage.createEmptyPageData());
+					} catch (IOException e) {
+						e.printStackTrace();
+						return null;
+					}
+				});
+		
+		if (page == null)
+			throw new DbException("No empty page");
+		
+		page.insertTuple(t);
+		
+		if (isNewPage[0])
+			this.writePage(page);
+		
+		return new ArrayList<Page>() {{ this.add(page); }};
 	}
 	
 	// see DbFile.java for javadocs
 	public ArrayList<Page> deleteTuple(TransactionId tid, Tuple t) throws DbException,
 			TransactionAbortedException {
-		// TODO
-		return null;
+		HeapPageId pid = (HeapPageId) t.getRecordId().getPageId();
+		HeapPage page = (HeapPage) Database.getBufferPool().getPage(
+				tid, pid, Permissions.READ_WRITE);
+		
+		page.deleteTuple(t);
+		return new ArrayList<Page>() {{ this.add(page); }};
 	}
 	
 	public class HeapFileIterator implements DbFileIterator {
@@ -135,23 +165,11 @@ public class HeapFile implements DbFile {
 		}
 		
 		public void open() throws TransactionAbortedException, DbException {
-			this.st = IntStream.range(0, HeapFile.this.numPages())
-					.mapToObj(i -> {
-						try {
-							return ((HeapPage) Database.getBufferPool().getPage(
-									this.tid,
-									new HeapPageId(HeapFile.this.getId(), i),
-									Permissions.READ_ONLY
-							)).stream();
-						} catch (TransactionAbortedException | DbException e) {
-							e.printStackTrace();
-							return null;
-						}
-					})
-					.filter(Objects::nonNull)
-					.iterator(); // Need gum mar eye your
+			this.st = HeapFile.this.getPagesStream(this.tid, Permissions.READ_ONLY)
+					.map(HeapPage::stream)
+					.iterator();
 			
-			this.hasNext();
+//			this.hasNext();
 			// Stream runs much faster than which was written myself
 			// Why???
 			
@@ -188,9 +206,8 @@ public class HeapFile implements DbFile {
 //
 //			return false;
 			
-			while (!this.it.hasNext() && this.st.hasNext()) {
+			while (!this.it.hasNext() && this.st.hasNext())
 				this.it = this.st.next().iterator();
-			}
 			
 			return this.it.hasNext();
 		}
@@ -210,14 +227,31 @@ public class HeapFile implements DbFile {
 		public void close() {
 //			this.cur = -1;
 //			this.it = null;
-			this.st = Stream.empty().map(foo -> (Stream<Tuple>) null).iterator();
-			this.it = Stream.empty().map(foo -> (Tuple) null).iterator();
+			this.st = Collections.emptyIterator();
+			this.it = Collections.emptyIterator();
 		}
 	}
 	
 	// see DbFile.java for javadocs
 	public DbFileIterator iterator(TransactionId tid) {
 		return new HeapFileIterator(tid);
+	}
+	
+	private Stream<HeapPage> getPagesStream(TransactionId tid, Permissions perm)
+			throws TransactionAbortedException, DbException {
+		return IntStream.range(0, HeapFile.this.numPages())
+				.mapToObj(i -> {
+					try {
+						return (HeapPage) Database.getBufferPool().getPage(
+								tid,
+								new HeapPageId(HeapFile.this.getId(), i),
+								perm);
+					} catch (TransactionAbortedException | DbException e) {
+						e.printStackTrace();
+						return null;
+					}
+				})
+				.filter(foo -> { assert foo != null; return true; });
 	}
 	
 }

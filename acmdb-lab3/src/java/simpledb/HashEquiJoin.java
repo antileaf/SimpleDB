@@ -35,6 +35,9 @@ public class HashEquiJoin extends Operator {
 		this.child1 = child1;
 		this.child2 = child2;
 		this.tbl2 = new HashMap<>();
+		
+		this.cur1 = null;
+		this.it2 = null;
 	}
 	
 	public JoinPredicate getJoinPredicate() {
@@ -53,14 +56,21 @@ public class HashEquiJoin extends Operator {
 		return this.child2.getTupleDesc().getFieldName(this.p.getField2());
 	}
 	
+	@Override
 	public void open() throws DbException, NoSuchElementException,
 			TransactionAbortedException {
+		super.open();
 		this.child1.open();
 		this.child2.open();
 		this.tbl2.clear();
+		
+		this.cur1 = null;
+		this.it2 = null;
 	}
 	
+	@Override
 	public void close() {
+		super.close();
 		this.child1.close();
 		this.child2.close();
 		this.tbl2.clear();
@@ -90,9 +100,15 @@ public class HashEquiJoin extends Operator {
 	 * @see JoinPredicate#filter
 	 */
 	protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-		while (this.child1.hasNext()) {
-			if (this.cur1 == null)
+		while (this.cur1 != null || this.child1.hasNext()) {
+			if (this.cur1 == null) {
 				this.cur1 = this.child1.next();
+				
+				if (this.it2 != null) {
+					assert !this.it2.hasNext();
+					this.it2 = this.tbl2.get(this.cur1.getField(this.p.getField1())).iterator();
+				}
+			}
 			
 			if (this.it2 == null) {
 				while (this.child2.hasNext()) {
@@ -107,22 +123,22 @@ public class HashEquiJoin extends Operator {
 						return Tuple.merge(this.cur1, cur2);
 				}
 				
-				this.it2 = Stream.empty().map(foo -> (Tuple) null).iterator();
-				
-				if (this.child1.hasNext())
-					this.child2.rewind();
+				this.it2 = Collections.emptyIterator();
+				this.cur1 = null;
 			}
+			
 			else {
-				if (!this.it2.hasNext())
-					this.it2 = this.tbl2.get(this.cur1.getField(this.p.getField1())).iterator();
-				
-				if (this.it2.hasNext()) {
-					Tuple cur2 = it2.next();
+				while (this.it2.hasNext()) {
+					Tuple cur2 = this.it2.next();
 					
 					assert this.p.filter(this.cur1, cur2);
 					return Tuple.merge(this.cur1, cur2);
 				}
+				
+				this.cur1 = null;
 			}
+			
+			assert this.cur1 == null;
 		}
 		
 		return null;

@@ -55,8 +55,11 @@ public class Aggregate extends Operator {
 		return this.getType(this.af);
 	}
 	
+	/**
+	 * @return the group-by field type, or null if gf is NO_GROUPING
+	 * */
 	private simpledb.Type getGroupType() {
-		return this.getType(this.gf);
+		return this.gf == Aggregator.NO_GROUPING ? null : this.getType(this.gf);
 	}
 
     /**
@@ -150,16 +153,14 @@ public class Aggregate extends Operator {
 
 	@Override
 	public void close() {
-		this.it.close();
 		super.close();
+		this.it.close();
 	}
-    
-    @Override
+ 
 	public DbIterator[] getChildren() {
 		return new DbIterator[] { this.child };
 	}
 
-    @Override
 	public void setChildren(DbIterator[] children) {
 		if (children.length != 1)
 			throw new IllegalArgumentException("Aggregate requires 1 child");

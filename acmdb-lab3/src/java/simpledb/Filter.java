@@ -34,12 +34,16 @@ public class Filter extends Operator {
 		return this.child.getTupleDesc();
 	}
 	
+	@Override
 	public void open() throws DbException, NoSuchElementException,
 			TransactionAbortedException {
+		super.open();
 		this.child.open();
 	}
 	
+	@Override
 	public void close() {
+		super.close();
 		this.child.close();
 	}
 	

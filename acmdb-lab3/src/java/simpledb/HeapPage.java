@@ -249,7 +249,14 @@ public class HeapPage implements Page {
 	 * @param t The tuple to delete
 	 */
 	public void deleteTuple(Tuple t) throws DbException {
-		// TODO
+		if (!this.pid.equals(t.getRecordId().getPageId()))
+			throw new DbException("tuple not on this page");
+		
+		int k = t.getRecordId().tupleno();
+		if (!this.isSlotUsed(k))
+			throw new DbException("slot already empty");
+		
+		this.markSlotUsed(k, false);
 	}
 	
 	/**
@@ -260,7 +267,21 @@ public class HeapPage implements Page {
 	 * @param t The tuple to add.
 	 */
 	public void insertTuple(Tuple t) throws DbException {
-		// TODO
+		if (this.getNumEmptySlots() == 0)
+			throw new DbException("page is full");
+		if (!this.td.equals(t.getTupleDesc()))
+			throw new DbException("TupleDesc mismatch");
+		
+		IntStream.range(0, this.getNumTuples())
+				.filter(i -> !this.isSlotUsed(i))
+				.limit(1)
+				.forEach(i -> {
+					this.tuples[i] = t;
+					t.setRecordId(new RecordId(this.pid, i));
+					this.markSlotUsed(i, true);
+				});
+		
+		assert this.pid.equals(t.getRecordId().getPageId());
 	}
 	
 	/**
@@ -269,7 +290,7 @@ public class HeapPage implements Page {
 	 */
 	public void markDirty(boolean dirty, TransactionId tid) {
 		this.dirty = dirty;
-		this.dirtier = tid;
+		this.dirtier = dirty ? tid : null; // what's wrong with your head?
 	}
 	
 	/**
@@ -299,7 +320,10 @@ public class HeapPage implements Page {
 	 * Abstraction to fill or clear a slot on this page.
 	 */
 	private void markSlotUsed(int i, boolean value) {
-		// TODO
+		if (value)
+			this.header[i >> 3] |= 1 << (i & 7);
+		else
+			this.header[i >> 3] &= ~(1 << (i & 7));
 	}
 	
 	/**
@@ -307,7 +331,10 @@ public class HeapPage implements Page {
 	 * Note that although stream() is provided, HeapPage does not implement Streamable
 	 */
 	public Stream<Tuple> stream() {
-		return Arrays.stream(this.tuples).filter(Objects::nonNull);
+//		return Arrays.stream(this.tuples).filter(Objects::nonNull);
+		return IntStream.range(0, this.getNumTuples())
+				.filter(this::isSlotUsed)
+				.mapToObj(i -> this.tuples[i]);
 	}
 	
 	/**

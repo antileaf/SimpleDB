@@ -43,28 +43,28 @@ public class Predicate implements Serializable {
 				throw new IllegalStateException("impossible to reach here");
 		}
 		
-		public Op reversal() { // swap the side of the comparison
-			if (this == EQUALS)
-				return EQUALS;
-			else if (this == GREATER_THAN)
-				return LESS_THAN;
-			else if (this == LESS_THAN)
-				return GREATER_THAN;
-			else if (this == LESS_THAN_OR_EQ)
-				return GREATER_THAN_OR_EQ;
-			else if (this == GREATER_THAN_OR_EQ)
-				return LESS_THAN_OR_EQ;
-			else if (this == LIKE)
-				return LIKE;
-			else if (this == NOT_EQUALS)
-				return NOT_EQUALS;
-			else
-				throw new IllegalStateException("impossible to reach here");
-		}
-		
-		public static Op reversal(Op op) {
-			return op.reversal();
-		}
+//		public Op reversal() { // swap the side of the comparison
+//			if (this == EQUALS)
+//				return EQUALS;
+//			else if (this == GREATER_THAN)
+//				return LESS_THAN;
+//			else if (this == LESS_THAN)
+//				return GREATER_THAN;
+//			else if (this == LESS_THAN_OR_EQ)
+//				return GREATER_THAN_OR_EQ;
+//			else if (this == GREATER_THAN_OR_EQ)
+//				return LESS_THAN_OR_EQ;
+//			else if (this == LIKE)
+//				return LIKE;
+//			else if (this == NOT_EQUALS)
+//				return NOT_EQUALS;
+//			else
+//				throw new IllegalStateException("impossible to reach here");
+//		}
+//
+//		public static Op reversal(Op op) {
+//			return op.reversal();
+//		}
 	}
 	
 	private final int index;
