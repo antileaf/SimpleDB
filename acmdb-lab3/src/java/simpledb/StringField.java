@@ -42,6 +42,9 @@ public class StringField implements Field {
 	}
 
 	public boolean equals(Object field) {
+		if (!(field instanceof StringField))
+			return false;
+
 		return ((StringField) field).value.equals(value);
 	}
 
@@ -70,7 +73,7 @@ public class StringField implements Field {
 	 * Compare the specified field to the value of this Field. Return semantics
 	 * are as specified by Field.compare
 	 * 
-	 * @throws IllegalCastException
+	 * @throws <code>IllegalCastException</code>
 	 *             if val is not a StringField
 	 * @see Field#compare
 	 */
