@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Ant
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-ant
 
-name: Java CI
+name: Java Test
 
 on:
   push:
@@ -11,19 +11,22 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'temurin'
 
-      - name: lab1-systemtest
-        run: ant -noinput -buildfile acmdb-lab1/build.xml systemtest
+#      - name: lab1
+#        run: ant -noinput -buildfile acmdb-lab1/build.xml systemtest
 
-      - name: lab2-systemtest
+      - name: lab2
         run: ant -noinput -buildfile acmdb-lab2/build.xml systemtest
+
+      - name: lab3
+        run: ant -noinput -buildfile acmdb-lab3/build.xml systemtest
