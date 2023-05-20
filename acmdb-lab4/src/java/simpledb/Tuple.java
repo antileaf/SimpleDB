@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Tuple maintains information about the contents of a tuple. Tuples have a
@@ -118,8 +119,12 @@ public class Tuple implements Serializable {
 	 * @return
 	 *        An iterator which iterates over all the fields of this tuple
 	 * */
-	public Iterator<Field> fields() {
+	public Iterator<Field> fieldsIterator() {
 		return this.fields.iterator();
+	}
+	
+	public Stream<Field> fieldsStream() {
+		return this.fields.stream();
 	}
 	
 	/**

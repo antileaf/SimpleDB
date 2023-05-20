@@ -4,7 +4,7 @@ package simpledb;
  * A class to represent a fixed-width histogram over a single String-based
  * field.
  */
-public class StringHistogram {
+public class StringHistogram implements Histogram {
     final IntHistogram hist;
 
     /**

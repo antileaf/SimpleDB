@@ -3,4 +3,6 @@
 */bin/
 *.pptx
 ~*.pptx
+~*.docx
 *.tar.bz2
+*/testreport/
