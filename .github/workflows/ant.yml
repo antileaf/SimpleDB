@@ -25,8 +25,11 @@ jobs:
 #      - name: lab1
 #        run: ant -noinput -buildfile acmdb-lab1/build.xml systemtest
 
-      - name: lab2
-        run: ant -noinput -buildfile acmdb-lab2/build.xml systemtest
+#       - name: lab2
+#         run: ant -noinput -buildfile acmdb-lab2/build.xml systemtest
 
-      - name: lab3
-        run: ant -noinput -buildfile acmdb-lab3/build.xml systemtest
+#       - name: lab3
+#         run: ant -noinput -buildfile acmdb-lab3/build.xml systemtest
+        
+      - name: lab4
+        run: ant -noinput -buildfile acmdb-lab4/build.xml systemtest
