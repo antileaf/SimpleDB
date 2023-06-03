@@ -81,8 +81,7 @@ public class HeapFile implements DbFile {
 			return new HeapPage((HeapPageId) pid, data);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
-			return null;
+			throw new DbException("readPage: IOException");
 		}
 	}
 	
@@ -126,8 +125,7 @@ public class HeapFile implements DbFile {
 								new HeapPageId(this.getId(), this.numPages()),
 								HeapPage.createEmptyPageData());
 					} catch (IOException e) {
-						e.printStackTrace();
-						return null;
+						throw new DbException("IOException: " + e.getMessage());
 					}
 				});
 		
@@ -240,18 +238,12 @@ public class HeapFile implements DbFile {
 	private Stream<HeapPage> getPagesStream(TransactionId tid, Permissions perm)
 			throws TransactionAbortedException, DbException {
 		return IntStream.range(0, HeapFile.this.numPages())
-				.mapToObj(i -> {
-					try {
-						return (HeapPage) Database.getBufferPool().getPage(
+				.mapToObj(i -> (HeapPage) Database.getBufferPool().getPage(
 								tid,
 								new HeapPageId(HeapFile.this.getId(), i),
-								perm);
-					} catch (TransactionAbortedException | DbException e) {
-						e.printStackTrace();
-						return null;
-					}
-				})
-				.filter(foo -> { assert foo != null; return true; });
+								perm))
+//				.filter(foo -> { assert foo != null; return true; });
+				.filter(Objects::nonNull); // 好怪喔
 	}
 	
 }

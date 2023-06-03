@@ -1,21 +1,19 @@
-# Writeup for Lab 4
+# Writeup for Lab 5
 
 ## Describe any design decisions you made.
 
-I used a partitioned data structure ("分块" in Chinese) for optimization in `IntHistogram`. The reason of using it instead of BIT is that, I think querying is less frequent than modifying, so it's worth to sacrefice the performance of querying.
-
-Additionally I improved several pre-prepared methods such as `computeCostAndCardOfSubplan`. I changed the naive implementation using `Set` into direcly using an integer as the bitmask.
+I used BFS instead of recursive DFS to traverse the dependency graph in `BufferPool`. I think it is more efficient.
 
 ## Discuss and justify any changes you made to the API.
 
-I changed some APIs in `JoinOptimizer` due to the improvement mentioned above.
+I added `.equals()` for `Tuple` because there seems to be a bug in the test.
+
+Additionally, I changed `DbException` and `TransactionAbortedException` to `RuntimeException`, because I need to throw them when working on stream. This may be ugly, but is the simplest way to pass the test, without changing streams back to for-loops.
 
 ## Describe any missing or incomplete elements of your code.
 
-I am lazy, so there may be some unnecessary part missing. Anyway I passed all the tests.
+There is no missing or incomplete elements in my code for lab5. I passed all the tests.
 
 ## Describe how long you spent on the lab, and whether there was anything you found particularly difficult or confusing.
 
-May be 6~8 hours. I didn't remember precisely because I got covid-19, and I was sick for several days.
-
-I spent most of the time reviewing lessons about query optimization. The coding part is not difficult.
+6~8 hours roughly. I think lab5 is more difficult than all the labs before. There is no pre-written code for dependency graph or locks, so I have to try several ways to implement them.

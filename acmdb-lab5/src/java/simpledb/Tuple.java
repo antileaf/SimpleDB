@@ -141,4 +141,15 @@ public class Tuple implements Serializable {
 					this.addAll(b.fields);
 				}});
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Tuple))
+			return false;
+		
+		Tuple o = (Tuple) obj;
+		return this.tupleDesc.numFields() == o.tupleDesc.numFields()
+				&& this.tupleDesc.equals(o.tupleDesc)
+				&& this.fields.equals(o.fields);
+	}
 }
